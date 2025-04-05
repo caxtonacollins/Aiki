@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactElement } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -24,9 +24,10 @@ import { getCourseData } from "@/mocks/getCourseData";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { Card } from "@/components/ui/card";
+import { Course, Lesson, Module } from "@/types";
 
-const CourseDetailOverview = ({ course }: { course: any }) => {
-  const categoryIcons: Record<string, JSX.Element> = {
+const CourseDetailOverview = ({ course }: { course: Course }) => {
+  const categoryIcons: Record<Course["category"], ReactElement> = {
     blockchain: <Code className="w-6 h-6 text-primary" />,
     data: <Database className="w-6 h-6 text-primary" />,
     ai: <Brain className="w-6 h-6 text-primary" />,
@@ -121,7 +122,7 @@ const CourseDetailOverview = ({ course }: { course: any }) => {
 
           <h2 className="text-xl font-bold mb-4">Course Content</h2>
           <div className="space-y-4">
-            {course.modules.map((module: any) => (
+            {course.modules.map((module: Module) => (
               <Card
                 key={module.id}
                 className="border rounded-lg overflow-hidden p-0"
@@ -130,7 +131,7 @@ const CourseDetailOverview = ({ course }: { course: any }) => {
                   <h3 className="font-medium">{module.title}</h3>
                 </div>
                 <div className="divide-y">
-                  {module.lessons.map((lesson: any) => (
+                  {module.lessons.map((lesson: Lesson) => (
                     <div
                       key={lesson.id}
                       className="p-4 flex items-center justify-between"
@@ -157,14 +158,14 @@ const CourseDetailOverview = ({ course }: { course: any }) => {
 const CourseDetail = () => {
   const params = useParams();
   const id = params.id;
-  const [course, setCourse] = useState<any>(null);
+  const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
     // This will be replaced with Supabase query once integrated
     const courseData = getCourseData(id as string);
-    setCourse(courseData);
+    setCourse(courseData || null);
     setLoading(false);
   }, [id]);
 

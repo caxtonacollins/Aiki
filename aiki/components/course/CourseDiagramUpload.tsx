@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Image as ImageIcon, Plus, X, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,19 +6,27 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import Image from "next/image";
 const CourseDiagramUpload = ({ courseId }: { courseId: string }) => {
-  const [diagrams, setDiagrams] = useState<{ title: string; file: File | null; previewUrl: string | null }[]>([
-    { 
-      title: "Course Structure Overview", 
-      file: null, 
-      previewUrl: "https://images.unsplash.com/photo-1600267204091-5c1ab8b10c02?q=80&w=400&auto=format&fit=crop" 
+  const [diagrams, setDiagrams] = useState<
+    { title: string; file: File | null; previewUrl: string | null }[]
+  >([
+    {
+      title: "Course Structure Overview",
+      file: null,
+      previewUrl:
+        "https://images.unsplash.com/photo-1600267204091-5c1ab8b10c02?q=80&w=400&auto=format&fit=crop",
     },
-    { 
-      title: "Concept Map", 
-      file: null, 
-      previewUrl: "https://images.unsplash.com/photo-1579403124614-197f69d8187b?q=80&w=400&auto=format&fit=crop" 
-    }
+    {
+      title: "Concept Map",
+      file: null,
+      previewUrl:
+        "https://images.unsplash.com/photo-1579403124614-197f69d8187b?q=80&w=400&auto=format&fit=crop",
+    },
   ]);
   const [newDiagramTitle, setNewDiagramTitle] = useState("");
+
+  useEffect(() => {
+    console.log("Course ID:", courseId);
+  }, [courseId]);
 
   const handleFileChange = (index: number, file: File | null) => {
     if (!file) {
@@ -29,15 +36,15 @@ const CourseDiagramUpload = ({ courseId }: { courseId: string }) => {
       setDiagrams(updatedDiagrams);
       return;
     }
-    
+
     // Check if the file is an image
-    if (!file.type.startsWith('image/')) {
+    if (!file.type.startsWith("image/")) {
       toast("Invalid file type", {
         description: "Please upload an image file",
       });
       return;
     }
-    
+
     const reader = new FileReader();
     reader.onload = (e) => {
       const updatedDiagrams = [...diagrams];
@@ -46,7 +53,7 @@ const CourseDiagramUpload = ({ courseId }: { courseId: string }) => {
       setDiagrams(updatedDiagrams);
     };
     reader.readAsDataURL(file);
-    
+
     toast("Diagram selected", {
       description: `${file.name} will be uploaded when you save changes`,
     });
@@ -54,16 +61,19 @@ const CourseDiagramUpload = ({ courseId }: { courseId: string }) => {
 
   const addNewDiagram = () => {
     if (!newDiagramTitle.trim()) {
-      toast("Please provide a title",{
+      toast("Please provide a title", {
         description: "Diagram title cannot be empty",
       });
       return;
     }
-    
-    setDiagrams([...diagrams, { title: newDiagramTitle, file: null, previewUrl: null }]);
+
+    setDiagrams([
+      ...diagrams,
+      { title: newDiagramTitle, file: null, previewUrl: null },
+    ]);
     setNewDiagramTitle("");
-    
-    toast("Diagram section added",{
+
+    toast("Diagram section added", {
       description: "Now you can upload an image for this diagram",
     });
   };

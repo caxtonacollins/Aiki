@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FileText, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,10 @@ const CourseTextUpload = ({ courseId }: { courseId: string }) => {
     updatedSections[index].content = content;
     setTextSections(updatedSections);
   };
+
+  useEffect(() => {
+    console.log("Course ID:", courseId);
+  }, [courseId]);
 
   const addNewSection = () => {
     if (!newSectionTitle.trim()) {

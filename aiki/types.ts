@@ -53,3 +53,46 @@ export type Courses = {
   rating: number;
   image: string;
 };
+
+
+// Types for individual lessons
+interface Lesson {
+  id: number;
+  title: string;
+  duration: string;
+}
+
+// Types for course modules
+interface Module {
+  id: number;
+  title: string;
+  lessons: Lesson[];
+}
+
+// Main course interface
+interface Course {
+  id: number;
+  title: string;
+  description: string;
+  longDescription: string;
+  category: "blockchain" | "data" | "ai" | "security";
+  difficulty: "beginner" | "intermediate" | "advanced";
+  duration: string;
+  enrolledCount: number;
+  rating: number;
+  instructor: string;
+  instructorTitle: string;
+  image: string;
+  modules: Module[];
+}
+
+// Type for the getCourseData function
+type GetCourseData = (id: string) => Course | undefined;
+
+// Export the types
+export type {
+  Lesson,
+  Module,
+  Course,
+  GetCourseData,
+};

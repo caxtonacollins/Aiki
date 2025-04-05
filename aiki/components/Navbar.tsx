@@ -10,7 +10,10 @@ import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/Toggletheme";
 
 const Navbar = () => {
-  const { login, authenticated } = usePrivy();
+  const {
+    login,
+    //  authenticated
+  } = usePrivy();
 
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);

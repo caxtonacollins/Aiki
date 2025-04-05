@@ -1,5 +1,7 @@
+import { Course } from "@/types";
+
 export const getCourseData = (id: string) => {
-  const courses = [
+  const courses: Course[] = [
     {
       id: 1,
       title: "Blockchain Fundamentals",

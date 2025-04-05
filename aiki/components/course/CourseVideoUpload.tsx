@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Upload, Video, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,10 @@ const CourseVideoUpload = ({ courseId }: { courseId: string }) => {
       description: `${file?.name} will be uploaded when you save changes`,
     });
   };
+
+  useEffect(() => {
+    console.log("Course ID:", courseId);
+  }, [courseId]);
 
   const addNewVideo = () => {
     if (!newVideoTitle.trim()) {
