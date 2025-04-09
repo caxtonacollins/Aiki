@@ -1,0 +1,55 @@
+import { GitHubIssue } from "@/types";
+
+export const mockIssues: GitHubIssue[] = [
+  {
+    id: 1,
+    number: 42,
+    title: "Implement dark mode toggle",
+    body: "We need to add a dark mode toggle to the application that persists user preference.",
+    state: "open",
+    html_url: "https://github.com/example/repo/issues/42",
+    labels: [
+      { id: 1, name: "enhancement", color: "0366d6" },
+      { id: 2, name: "good first issue", color: "7057ff" },
+    ],
+    created_at: "2023-06-15T10:00:00Z",
+    updated_at: "2023-06-16T15:30:00Z",
+    assignee: null,
+    difficulty: "easy",
+    estimated_time: "2-4 hours",
+  },
+  {
+    id: 2,
+    number: 53,
+    title: "Fix responsive layout on mobile devices",
+    body: "The dashboard layout breaks on small screen devices. We need to implement a proper responsive design.",
+    state: "open",
+    html_url: "https://github.com/example/repo/issues/53",
+    labels: [
+      { id: 3, name: "bug", color: "d73a4a" },
+      { id: 4, name: "priority: high", color: "b60205" },
+    ],
+    created_at: "2023-06-20T09:15:00Z",
+    updated_at: "2023-06-21T14:45:00Z",
+    assignee: null,
+    difficulty: "medium",
+    estimated_time: "4-6 hours",
+  },
+  {
+    id: 3,
+    number: 67,
+    title: "Implement wallet connection feature",
+    body: "Add support for connecting various crypto wallets to the application.",
+    state: "open",
+    html_url: "https://github.com/example/repo/issues/67",
+    labels: [
+      { id: 5, name: "feature", color: "0e8a16" },
+      { id: 6, name: "blockchain", color: "fbca04" },
+    ],
+    created_at: "2023-06-25T11:30:00Z",
+    updated_at: "2023-06-26T10:00:00Z",
+    assignee: null,
+    difficulty: "hard",
+    estimated_time: "8-12 hours",
+  },
+];

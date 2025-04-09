@@ -46,7 +46,7 @@ const Leaderboard = () => {
         </div>
 
         <div className="bg-background/50 text-foreground max-w-3xl mx-auto rounded-xl shadow-subtle overflow-hidden">
-          <div className="p-4 bg-primary dark:bg-primary text-primary-foreground flex items-center justify-between">
+          <div className="p-4 bg-primary dark:bg-muted-foreground text-primary-foreground flex items-center justify-between">
             <div className="flex items-center">
               <Trophy className="w-5 h-5 mr-2" />
               <h3 className="font-bold">Leaderboard</h3>
@@ -104,8 +104,8 @@ const Leaderboard = () => {
             ))}
           </div>
 
-          <div className="p-4 bg-primary text-center">
-            <Button className="text-sm text-primary-foreground font-medium hover:text-primary-foreground/80 dark:hover:text-muted-foreground/95 transition-colors cursor-pointer">
+          <div className="p-4 bg-primary dark:bg-muted-foreground text-center">
+            <Button className="bg-transparent text-sm text-primary-foreground font-medium hover:text-primary-foreground/80 dark:hover:text-muted/95 transition-colors cursor-pointer">
               View Full Leaderboard
             </Button>
           </div>

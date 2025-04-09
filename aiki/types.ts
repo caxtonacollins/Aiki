@@ -1,4 +1,5 @@
 import { LucideIcon } from "lucide-react";
+// import { ReactNode } from "react";
 
 export type Feature = {
   icon: LucideIcon;
@@ -22,77 +23,149 @@ export type Contributor = {
   name: string;
 };
 
-export type Task = {
-  id: number;
-  title: string;
-  description: string;
-  difficulty: string;
-  techStack: string[];
-  estimatedTime: string;
-};
+export type ProjectCategory =
+  | "all"
+  | "blockchain"
+  | "web3"
+  | "defi"
+  | "nft"
+  | "dao";
+export type ProjectDifficulty =
+  | "all"
+  | "beginner"
+  | "intermediate"
+  | "advanced";
 
-export type Project = {
-  id: number;
+export interface Project {
+  id: string;
   title: string;
   description: string;
-  category: string;
-  skills: string[];
-  completionRate: number;
-  contributors: Contributor[];
-  tasks: Task[];
-};
-
-export type Courses = {
-  id: number;
-  title: string;
-  description: string;
-  category: string;
-  difficulty: string;
-  duration: string;
-  enrolledCount: number;
-  rating: number;
+  longDescription?: string;
   image: string;
-};
+  category: string;
+  difficulty: string;
+  technologies: string[];
+  starsCount: number;
+  forksCount: number;
+  contributorsCount: number;
+  createdAt: string;
+  updatedAt: string;
+  demo?: string;
+  repo?: string;
+  readme?: string;
+}
 
-
-// Types for individual lessons
-interface Lesson {
-  id: number;
+interface lesson {
+  id: string;
   title: string;
   duration: string;
 }
 
-// Types for course modules
 interface Module {
-  id: number;
+  id: string;
   title: string;
-  lessons: Lesson[];
+  lessons: lesson[];
 }
 
-// Main course interface
-interface Course {
-  id: number;
+export interface Course {
+  id: string;
   title: string;
+  instructor: string;
   description: string;
   longDescription: string;
-  category: "blockchain" | "data" | "ai" | "security";
-  difficulty: "beginner" | "intermediate" | "advanced";
-  duration: string;
-  enrolledCount: number;
-  rating: number;
-  instructor: string;
-  instructorTitle: string;
   image: string;
+  category: string;
+  difficulty: "Beginner" | "Intermediate" | "Advanced";
+  duration: string;
+  rating: number;
+  enrolledCount: number;
+  instructorName: string;
+  price?: string | number; // Can be "Free" or a number for paid courses
   modules: Module[];
+  moduleCount: number;
+  estimatedHours: number;
 }
 
-// Type for the getCourseData function
-type GetCourseData = (id: string) => Course | undefined;
+export interface GitHubIssue {
+  id: number;
+  number: number;
+  title: string;
+  body: string;
+  state: "open" | "closed";
+  html_url: string;
+  labels: {
+    id: number;
+    name: string;
+    color: string;
+  }[];
+  created_at: string;
+  updated_at: string;
+  assignee: {
+    login: string;
+    avatar_url: string;
+  } | null;
+  difficulty: "easy" | "medium" | "hard";
+  estimated_time: string;
+}
 
-// Export the types
-export type {
-  Lesson,
-  Module,
-  Course,
-  GetCourseData,
+export interface IssueApplication {
+  id: string;
+  userId: string;
+  issueId: number;
+  projectId: string;
+  status: "pending" | "approved" | "rejected";
+  message: string;
+  created_at: string;
+  experience: string;
+  timeCommitment: string;
+  userName: string;
+  userEmail: string;
+}
+
+export interface CourseEnrollment {
+  id: string;
+  userId: string;
+  courseId: string;
+  enrolledAt: string;
+  progress: number;
+  completed: boolean;
+  lastActivityAt: string;
+}
+
+export interface User {
+  email: string;
+  // avatarUrl: string;
+}
+
+export interface CommunityEvent {
+  id: string;
+  title: string;
+  date: string;
+  time: string;
+  description: string;
+  image: string;
+  attendees: number;
+  featured: boolean;
+  host: string;
+}
+
+export interface Discussion {
+  id: string;
+  title: string;
+  author: {
+    name: string;
+    avatar: string;
+  };
+  posted: string;
+  replies: number;
+  views: number;
+  tags: string[];
+}
+
+// Define community interface
+export interface Community {
+  name: string;
+  members: number;
+  // icon: ReactNode;
+  icon: LucideIcon;
 };

@@ -1,24 +1,43 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
-import { usePrivy } from "@privy-io/react-auth";
+import { ChevronDown, Menu, X } from "lucide-react";
 import Logo from "@/public/logo2.png";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/Toggletheme";
+import { Button } from "./ui/button";
+import { usePrivyAuth } from "@/hooks/use-privy-auth";
+import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
+import { Avatar } from "@radix-ui/react-avatar";
+import {
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { AvatarFallback, AvatarImage } from "./ui/avatar";
+import AvatarImg from "@/public/avata.jpg";
 
 const Navbar = () => {
-  const {
-    login,
-    //  authenticated
-  } = usePrivy();
-
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [hideNavbar, setHideNavbar] = useState(false);
   const location = usePathname();
+  const { authenticated, login, user, formattedAddress, logout } =
+    usePrivyAuth();
+
+
+  // const router = useRouter();
+
+  // useEffect(() => {
+  //   if (authenticated) {
+  //     // router.push("/dashboard");
+  //     console.log("Authenticated");
+  //   }
+  // }, [authenticated, router]);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -51,6 +70,12 @@ const Navbar = () => {
     login();
   };
 
+  // Helper to get user's initials for avatar fallback
+  const getUserInitials = () => {
+    if (!user?.email) return "U";
+    return user.email.charAt(0).toUpperCase();
+  };
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -74,7 +99,7 @@ const Navbar = () => {
             href="/"
             className={`nav-link text-sm font-medium transition-colors ${
               isActive("/")
-                ? "text-primary"
+                ? "text-sky-400"
                 : "text-muted-foreground hover:text-primary"
             }`}
           >
@@ -84,7 +109,7 @@ const Navbar = () => {
             href="/courses"
             className={`nav-link text-sm font-medium transition-colors ${
               isActive("/courses")
-                ? "text-primary"
+                ? "text-sky-400"
                 : "text-muted-foreground hover:text-primary"
             }`}
           >
@@ -94,7 +119,7 @@ const Navbar = () => {
             href="/projects"
             className={`nav-link text-sm font-medium transition-colors ${
               isActive("/projects")
-                ? "text-primary"
+                ? "text-sky-400"
                 : "text-muted-foreground hover:text-primary"
             }`}
           >
@@ -104,7 +129,7 @@ const Navbar = () => {
             href="/community"
             className={`nav-link text-sm font-medium transition-colors ${
               isActive("/community")
-                ? "text-primary"
+                ? "text-sky-400"
                 : "text-muted-foreground hover:text-primary"
             }`}
           >
@@ -113,20 +138,56 @@ const Navbar = () => {
         </div>
 
         <div className="hidden md:flex items-center gap-4">
-          <button
-            onClick={() => handleLogin()}
-            className="px-4 py-2 text-sm font-medium text-primary border border-sky-400 rounded-lg hover:bg-primary/5 transition-colors"
-          >
-            Log in
-          </button>
+          {authenticated ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-2 outline-none">
+                <div className="flex items-center gap-2">
+                  <Avatar className="h-8 w-8">
+                    {/* <AvatarImage src={user?.avatarUrl || ""} className="rounded-full"/> */}
+                    <AvatarImage src={AvatarImg.src} className="rounded-full" />
+
+                    <AvatarFallback className="bg-primary text-primary-foreground">
+                      {getUserInitials()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm font-medium">
+                    {formattedAddress}
+                  </span>
+                </div>
+                <ChevronDown className="h-4 w-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <Link href="/profile" className="w-full">
+                    Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Link href="/dashboard" className="w-full">
+                    Dashboard
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => logout()}>
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Button
+                variant="outline"
+                onClick={() => handleLogin()}
+                className="px-4 py-2 text-sm font-medium text-primary border border-sky-400 rounded-lg hover:bg-primary/5 transition-colors cursor-pointer"
+              >
+                Log in
+              </Button>
+            </>
+          )}
+
           <ThemeToggle />
-          {/* <Link
-            to="/signup"
-            className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-lg hover:bg-primary/90 transition-colors"
-          >
-            Sign up
-          </Link> */}
-          {/* <ConnectButton /> */}
         </div>
 
         {/* Mobile Menu Button */}
@@ -141,12 +202,12 @@ const Navbar = () => {
 
       {/* Mobile Navigation */}
       {isOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-white border-t border-gray-100 shadow-md">
+        <div className="md:hidden absolute top-full left-0 right-0 border-t border-sky-400 shadow-md">
           <div className="container mx-auto px-6 py-4 flex flex-col space-y-4">
             <Link
               href="/"
               className={`block py-2 ${
-                isActive("/") ? "text-primary" : "text-muted-foreground"
+                isActive("/") ? "text-sky-400" : "text-muted-foreground"
               }`}
               onClick={() => setIsOpen(false)}
             >
@@ -155,7 +216,7 @@ const Navbar = () => {
             <Link
               href="/courses"
               className={`block py-2 ${
-                isActive("/courses") ? "text-primary" : "text-muted-foreground"
+                isActive("/courses") ? "text-sky-400" : "text-muted-foreground"
               }`}
               onClick={() => setIsOpen(false)}
             >
@@ -164,7 +225,7 @@ const Navbar = () => {
             <Link
               href="/projects"
               className={`block py-2 ${
-                isActive("/projects") ? "text-primary" : "text-muted-foreground"
+                isActive("/projects") ? "text-sky-400" : "text-muted-foreground"
               }`}
               onClick={() => setIsOpen(false)}
             >
@@ -174,7 +235,7 @@ const Navbar = () => {
               href="/community"
               className={`block py-2 ${
                 isActive("/community")
-                  ? "text-primary"
+                  ? "text-sky-400"
                   : "text-muted-foreground"
               }`}
               onClick={() => setIsOpen(false)}
@@ -182,19 +243,51 @@ const Navbar = () => {
               Community
             </Link>
             <div className="pt-2 flex flex-col space-y-3">
-              <button
-                className="px-4 py-2 text-sm font-medium text-center text-primary border border-primary rounded-lg"
-                onClick={() => handleLogin()}
-              >
-                Log in
-              </button>
-              {/* <Link
-                to="/signup"
-                className="px-4 py-2 text-sm font-medium text-center text-primary-foreground bg-primary rounded-lg"
-                onClick={() => setIsOpen(false)}
-              >
-                Sign up
-              </Link> */}
+              {authenticated ? (
+                <>
+                  <div className="flex items-center gap-2 py-2">
+                    <Avatar className="h-8 w-8">
+                      {/* <AvatarImage src={user?.avatarUrl || ""} /> */}
+                      <AvatarImage
+                        src={AvatarImg.src}
+                        className="rounded-full"
+                      />
+                      <AvatarFallback className="bg-primary text-primary-foreground">
+                        {getUserInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm font-medium">
+                      {formattedAddress}
+                    </span>
+                  </div>
+                  <Link
+                    href="/profile"
+                    className="px-4 py-2 text-sm font-medium text-center text-muted-foreground border border-gray-200 rounded-lg"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Profile
+                  </Link>
+                  <Button
+                    onClick={() => {
+                      logout();
+                      setIsOpen(false);
+                    }}
+                    className="px-4 py-2 text-sm font-medium text-center text-primary-foreground bg-primary rounded-lg"
+                  >
+                    Log out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    variant={"outline"}
+                    className="px-4 py-2 text-sm font-medium text-center text-primary border border-primary rounded-lg"
+                    onClick={() => handleLogin()}
+                  >
+                    Log in
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>

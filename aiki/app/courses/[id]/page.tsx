@@ -1,207 +1,149 @@
 "use client";
 
-import { useState, useEffect, ReactElement } from "react";
-import Link from "next/link";
-import {
-  ArrowLeft,
-  Calendar,
-  Users,
-  Star,
-  BookOpen,
-  Code,
-  Database,
-  GraduationCap,
-  Brain,
-  Shield,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import CourseNavigation from "@/components/CourseNavigation";
-import CourseVideoUpload from "@/components/course/CourseVideoUpload";
-import CourseTextUpload from "@/components/course/CourseTextUpload";
+import { useState, useEffect, useCallback } from "react";
+import { ArrowLeft } from "lucide-react";
+import Navbar from "@/components/Navbar";
+import { Badge } from "@/components/ui/badge";
 import CourseDiagramUpload from "@/components/course/CourseDiagramUpload";
-import { getCourseData } from "@/mocks/getCourseData";
+import CourseTextUpload from "@/components/course/CourseTextUpload";
+import CourseVideoUpload from "@/components/course/CourseVideoUpload";
+import { useParams, usePathname } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
-import { useParams } from "next/navigation";
-import { Card } from "@/components/ui/card";
-import { Course, Lesson, Module } from "@/types";
-
-const CourseDetailOverview = ({ course }: { course: Course }) => {
-  const categoryIcons: Record<Course["category"], ReactElement> = {
-    blockchain: <Code className="w-6 h-6 text-primary" />,
-    data: <Database className="w-6 h-6 text-primary" />,
-    ai: <Brain className="w-6 h-6 text-primary" />,
-    security: <Shield className="w-6 h-6 text-primary" />,
-  };
-
-  const difficultyBadges: Record<string, string> = {
-    beginner: "bg-green-100 text-green-800",
-    intermediate: "bg-yellow-100 text-yellow-800",
-    advanced: "bg-red-100 text-red-800",
-  };
-
-  return (
-    <>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column - Course Image */}
-        <div className="lg:col-span-1">
-          <div className="rounded-lg overflow-hidden">
-            <Image
-              width={800}
-              height={800}
-              src={course.image}
-              alt={course.title}
-              className="w-full h-auto object-cover"
-            />
-          </div>
-
-          <div className="mt-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <Calendar className="w-4 h-4 mr-2 text-muted-foreground" />
-                <span className="text-muted-foreground">Duration</span>
-              </div>
-              <span className="font-medium">{course.duration}</span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <Users className="w-4 h-4 mr-2 text-muted-foreground" />
-                <span className="text-muted-foreground">Enrolled</span>
-              </div>
-              <span className="font-medium">
-                {course.enrolledCount.toLocaleString()}
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <Star className="w-4 h-4 mr-2 text-amber-500" />
-                <span className="text-muted-foreground">Rating</span>
-              </div>
-              <span className="font-medium">{course.rating}/5.0</span>
-            </div>
-
-            <Button className="w-full mt-4 bg-sky-400">
-              Enroll in this course
-            </Button>
-          </div>
-        </div>
-
-        {/* Right Column - Course Details */}
-        <div className="lg:col-span-2">
-          <div className="flex items-center gap-2 mb-3">
-            {course.category && categoryIcons[course.category]}
-            <span
-              className={`text-xs px-2 py-1 rounded-full ${
-                difficultyBadges[course.difficulty]
-              }`}
-            >
-              {course.difficulty.charAt(0).toUpperCase() +
-                course.difficulty.slice(1)}
-            </span>
-          </div>
-
-          <h1 className="text-3xl font-bold mb-4">{course.title}</h1>
-
-          <p className="text-muted-foreground mb-6">{course.longDescription}</p>
-
-          <div className="flex items-center mb-8">
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mr-3">
-              <GraduationCap className="text-primary" />
-            </div>
-            <div>
-              <h3 className="font-medium">{course.instructor}</h3>
-              <p className="text-sm text-muted-foreground">
-                {course.instructorTitle}
-              </p>
-            </div>
-          </div>
-
-          <Separator className="my-8 bg-sky-400" />
-
-          <h2 className="text-xl font-bold mb-4">Course Content</h2>
-          <div className="space-y-4">
-            {course.modules.map((module: Module) => (
-              <Card
-                key={module.id}
-                className="border rounded-lg overflow-hidden p-0"
-              >
-                <div className="bg-muted p-4">
-                  <h3 className="font-medium">{module.title}</h3>
-                </div>
-                <div className="divide-y">
-                  {module.lessons.map((lesson: Lesson) => (
-                    <div
-                      key={lesson.id}
-                      className="p-4 flex items-center justify-between"
-                    >
-                      <div className="flex items-center">
-                        <BookOpen className="w-4 h-4 mr-3 text-muted-foreground" />
-                        <span>{lesson.title}</span>
-                      </div>
-                      <span className="text-sm text-muted-foreground">
-                        {lesson.duration}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </div>
-    </>
-  );
-};
+import CourseEnrollButton from "@/components/course/CourseEnrollButton";
+import CourseProgress from "@/components/course/CourseProgress";
+import CourseNavigation from "@/components/course/CourseNavigation";
+import { Course } from "@/types";
+import { getCourseById } from "@/mocks/courseData";
 
 const CourseDetail = () => {
-  const params = useParams();
-  const id = params.id;
-  const [course, setCourse] = useState<Course | null>(null);
+  const params = useParams<{ id: string }>();
+  const pathname = usePathname();
+  const id = params.id as string;
+  const [isEnrolled, setIsEnrolled] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [completedModules, setCompletedModules] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [error, setError] = useState<string | null>(null);
+  const [course, setCourse] = useState<Course | null>(null);
 
-  useEffect(() => {
-    // This will be replaced with Supabase query once integrated
-    const courseData = getCourseData(id as string);
-    setCourse(courseData || null);
-    setLoading(false);
+  // Memoized fetch function
+  const fetchCourse = useCallback(async () => {
+    try {
+      const foundCourse = getCourseById(id);
+      if (!foundCourse) {
+        setError("Course not found");
+        return;
+      }
+      setCourse(foundCourse);
+    } catch (err) {
+      console.error("Error fetching course data:", err);
+      setError("Failed to load course data");
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
 
-  if (loading) {
-    return (
-      <div className="container mx-auto px-6 py-24 flex justify-center items-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading course...</p>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    const loadData = async () => {
+      await fetchCourse();
+
+      // Check enrollment after course is loaded
+      if (typeof window !== "undefined") {
+        const enrolled = localStorage.getItem(`enrolled-${id}`) === "true";
+        setIsEnrolled(enrolled);
+
+        if (enrolled) {
+          const savedProgress = parseInt(
+            localStorage.getItem(`progress-${id}`) || "0",
+            10
+          );
+          const savedCompletedModules = parseInt(
+            localStorage.getItem(`completed-${id}`) || "0",
+            10
+          );
+          setProgress(savedProgress);
+          setCompletedModules(savedCompletedModules);
+        }
+      }
+    };
+
+    loadData();
+  }, [id, fetchCourse]);
+
+  // Stable handler for enrollment changes
+  const handleEnrollmentChange = useCallback(
+    (enrolled: boolean) => {
+      setIsEnrolled(enrolled);
+      if (typeof window !== "undefined") {
+        localStorage.setItem(`enrolled-${id}`, enrolled.toString());
+        if (enrolled) {
+          localStorage.setItem(`progress-${id}`, "0");
+          localStorage.setItem(`completed-${id}`, "0");
+          setProgress(0);
+          setCompletedModules(0);
+        }
+      }
+    },
+    [id]
+  );
 
   if (!course) {
     return (
-      <div className="container mx-auto px-6 py-24 flex justify-center items-center min-h-screen">
-        <div className="text-center">
-          <BookOpen className="w-12 h-12 mx-auto text-muted-foreground" />
-          <h3 className="text-xl font-medium mt-4 mb-2">Course not found</h3>
-          <p className="text-muted-foreground mb-6">
-            The course you&apos;re looking for doesn&apos;t exist or has been
-            removed.
-          </p>
-          <Link href="/courses">
-            <ArrowLeft className="mr-2" />
-            Back to all courses
-          </Link>
+      <div className="min-h-screen">
+        <Navbar />
+        <div className="container mx-auto px-6 py-24">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">Course not found</h2>
+            <p className="mb-6">
+              The course you&apos;re looking for doesn&apos;t exist or has been
+              removed.
+            </p>
+            <Link
+              href="/courses"
+              className="inline-flex items-center text-primary hover:underline"
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Back to all courses
+            </Link>
+          </div>
         </div>
       </div>
     );
   }
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <h1 className="text-2xl font-bold text-destructive">{error}</h1>
+        <Link href="/courses" className="mt-4 text-primary hover:underline">
+          Back to courses
+        </Link>
+      </div>
+    );
+  }
+
+  // Extract active tab from URL
+  const getActiveTab = () => {
+    const parts = pathname.split("/");
+    if (parts.length <= 3) return "overview";
+    return parts[3]; // Returns "videos", "text", or "diagrams"
+  };
+
+  const activeTab = getActiveTab();
+
   return (
-    <div className="container mx-auto px-6 py-24 min-h-screen">
-      <div className="mb-8">
+    <div className="min-h-screen">
+      <Navbar />
+      <div className="container mx-auto px-6 py-24">
         <Link
           href="/courses"
           className="inline-flex items-center text-primary hover:underline mb-6"
@@ -210,18 +152,133 @@ const CourseDetail = () => {
           Back to all courses
         </Link>
 
-        {/* Use CourseNavigation for tab navigation */}
-        <CourseNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+          <div className="lg:col-span-2">
+            <div className="mb-4">
+              <Badge className="mb-2">{course.category}</Badge>
+              <Badge variant="outline" className="ml-2 mb-2">
+                {course.difficulty}
+              </Badge>
+              <h1 className="text-4xl font-bold mb-4">{course.title}</h1>
+              <p className="text-muted-foreground mb-4">{course.description}</p>
+              <p className="text-sm text-muted-foreground">
+                <span className="font-medium">Instructor:</span>{" "}
+                {course.instructor} •
+                <span className="font-medium ml-2">Duration:</span>{" "}
+                {course.duration} •
+                <span className="font-medium ml-2">Rating:</span>{" "}
+                {course.rating}/5 •
+                <span className="font-medium ml-2">Students:</span>{" "}
+                {course.enrolledCount.toLocaleString()}
+              </p>
+            </div>
+          </div>
 
-        {/* Render content based on active tab */}
-        {activeTab === "overview" && <CourseDetailOverview course={course} />}
-        {activeTab === "videos" && (
-          <CourseVideoUpload courseId={id as string} />
-        )}
-        {activeTab === "text" && <CourseTextUpload courseId={id as string} />}
-        {activeTab === "diagrams" && (
-          <CourseDiagramUpload courseId={id as string} />
-        )}
+          <div className="lg:col-span-1">
+            <div className="rounded-lg overflow-hidden mb-4">
+              <Image
+                width={800}
+                height={450}
+                src={course.image}
+                alt={course.title}
+                className="w-full h-auto object-cover"
+              />
+            </div>
+
+            <div className="space-y-4">
+              <CourseEnrollButton
+                courseId={course.id}
+                isEnrolled={isEnrolled}
+                onEnrollmentChange={handleEnrollmentChange}
+              />
+
+              {isEnrolled && (
+                <CourseProgress
+                  progress={progress}
+                  moduleCount={course.moduleCount}
+                  completedModules={completedModules}
+                  estimatedHours={course.estimatedHours}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+
+        <CourseNavigation courseId={id} activeTab={activeTab} />
+
+        <div className="bg-card border rounded-lg p-6">
+          {activeTab === "videos" ? (
+            <CourseVideoUpload courseId={id} />
+          ) : activeTab === "text" ? (
+            <CourseTextUpload courseId={id} />
+          ) : activeTab === "diagrams" ? (
+            <CourseDiagramUpload courseId={id} />
+          ) : (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold">Course Modules</h2>
+              <div className="space-y-4">
+                {course.modules.map((module, index) => (
+                  <div
+                    key={module.id}
+                    className="flex items-center p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="rounded-full bg-primary/10 text-primary w-8 h-8 flex items-center justify-center font-medium mr-4">
+                      {index + 1}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-medium">{module.title}</h3>
+                      {/* <p className="text-sm text-muted-foreground">
+                        {module.duration}
+                      </p> */}
+                    </div>
+                    {isEnrolled ? (
+                      <Badge
+                        variant={
+                          index < completedModules ? "default" : "outline"
+                        }
+                      >
+                        {index < completedModules ? "Completed" : "Not Started"}
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline">Enroll to Access</Badge>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {isEnrolled && progress < 100 && (
+                <div className="flex justify-center mt-6">
+                  <button
+                    className="text-primary hover:underline"
+                    onClick={() => {
+                      const newCompletedModules = Math.min(
+                        completedModules + 1,
+                        course.moduleCount
+                      );
+                      const newProgress = Math.round(
+                        (newCompletedModules / course.moduleCount) * 100
+                      );
+
+                      setCompletedModules(newCompletedModules);
+                      setProgress(newProgress);
+
+                      localStorage.setItem(
+                        `completed-${id}`,
+                        newCompletedModules.toString()
+                      );
+                      localStorage.setItem(
+                        `progress-${id}`,
+                        newProgress.toString()
+                      );
+                    }}
+                  >
+                    Mark Next Module as Completed (Demo)
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

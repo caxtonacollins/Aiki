@@ -20,8 +20,8 @@ import {
 } from "@/components/ui/select";
 import Link from "next/link";
 import Image from "next/image";
-import { courses } from "@/mocks/coursesData";
 import { Card } from "@/components/ui/card";
+import { getCoursesByFilter } from "@/mocks/courseData";
 
 const Courses = () => {
   const [language, setLanguage] = useState<string>("en");
@@ -29,7 +29,7 @@ const Courses = () => {
   const [difficulty, setDifficulty] = useState<string>("all");
   const [category, setCategory] = useState<string>("all");
 
-  const filteredCourses = courses.filter((course) => {
+  const filteredCourses = getCoursesByFilter((course) => {
     const matchesSearch =
       course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       course.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -80,7 +80,7 @@ const Courses = () => {
               <SelectValue placeholder="Difficulty" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Levels</SelectItem>
+              <SelectItem value="all">All difficultys</SelectItem>
               <SelectItem value="beginner">Beginner</SelectItem>
               <SelectItem value="intermediate">Intermediate</SelectItem>
               <SelectItem value="advanced">Advanced</SelectItem>
