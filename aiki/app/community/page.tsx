@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   MessageSquare,
   Users,
@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { communities, discussions, events } from "@/mocks/communityData";
+import { useAccount } from "wagmi";
+import { getUserData } from "@/lib/user-storage";
 import {
   Card,
   CardContent,
@@ -21,16 +23,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { usePrivyAuth } from "@/hooks/use-privy-auth";
 import AvatarImg from "@/public/avata.jpg";
 
 const Community = () => {
-  const { user } = usePrivyAuth();
+  const { address } = useAccount();
+  const userData = address ? getUserData(address) : null;
+  const [nickname, setNickname] = useState("");
 
   // Helper to get user's initials for avatar fallback
   const getUserInitials = () => {
-    if (!user?.email) return "U";
-    return user.email.charAt(0).toUpperCase();
+    if (!userData?.email) return "A";
+    return userData.email.charAt(0).toUpperCase();
   };
 
   return (
@@ -223,32 +226,38 @@ const Community = () => {
               <Card className="rounded-xl p-5 border shadow-subtle">
                 <div className="text-center">
                   <div className="w-[4.5rem] h-[4.5rem] rounded-full bg-secondary mx-auto flex items-center justify-center">
-                    {/* <User className="w-10 h-10 text-muted-foreground" /> */}
                     <Avatar className="h-16 w-16">
-                      {/* <AvatarImage src={user?.avatarUrl || ""} className="rounded-full"/> */}
                       <AvatarImage
                         src={AvatarImg.src}
                         className="rounded-full"
                       />
-
                       <AvatarFallback className="bg-primary text-primary-foreground">
                         {getUserInitials()}
                       </AvatarFallback>
                     </Avatar>
                   </div>
-                  <h3 className="font-semibold mt-4">Join Our Community</h3>
+                  <h3 className="font-semibold mt-4">
+                    {userData?.email ? "Your Profile" : "Join Our Community"}
+                  </h3>
                   <p className="text-sm text-muted-foreground mt-2 mb-5">
-                    Connect with fellow learners, participate in discussions,
-                    and attend events.
+                    {userData?.email
+                      ? `Welcome, ${userData.email}!`
+                      : "Connect with fellow learners, participate in discussions, and attend events."}
                   </p>
                   <div className="space-y-3">
-                    <Input
-                      placeholder="Enter a Nickname"
-                      className="border-sky-400"
-                      // value={newNickName}
-                      // onChange={(e) => setNickName(e.target.value)}
-                    />
-                    <Button>Submit</Button>
+                    {!userData?.email ? (
+                      <>
+                        <Input
+                          placeholder="Enter a Nickname"
+                          className="border-sky-400"
+                          value={nickname}
+                          onChange={(e) => setNickname(e.target.value)}
+                        />
+                        <Button>Submit</Button>
+                      </>
+                    ) : (
+                      <Button>View Your Activity</Button>
+                    )}
                   </div>
                 </div>
               </Card>

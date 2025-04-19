@@ -1,23 +1,60 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAccount, useDisconnect } from "wagmi";
 import Navbar from "@/components/Navbar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { usePrivyAuth } from "@/hooks/use-privy-auth";
+import { getUserData } from "@/lib/user-storage";
+import { CustomWalletModal } from "@/components/wallet/CustomWalletModal";
 import AvatarImg from "@/public/avata.jpg";
 
 const Profile = () => {
-  const { user, wallets, formattedAddress, logout, linkWallet } =
-    usePrivyAuth();
+  const { address, isConnected } = useAccount();
+  const { disconnect } = useDisconnect();
+  const [showWalletModal, setShowWalletModal] = useState(false);
+  const userData = address ? getUserData(address) : null;
+  const router = useRouter();
 
-  // console.log("User data:", user);
+  // Format address for display
+  const formattedAddress = address
+    ? `${address.substring(0, 6)}...${address.substring(address.length - 4)}`
+    : "";
+
+  // Create a wallet array from user data
+  const wallets = address
+    ? [
+        {
+          address: address,
+          walletClientType: userData?.walletName || "Wallet",
+        },
+      ]
+    : [];
 
   const getUserRole = () => {
-    //TODO: replace with actual role logic from db
-    return "Student"; // Other roles: "Admin", "Instructor"
+    if (userData?.role) return userData.role;
+    return "Student"; // Default role
   };
+
+  // Handle wallet connection
+  const linkWallet = () => {
+    setShowWalletModal(true);
+  };
+
+  // Handle logout
+  const logout = () => {
+    disconnect();
+    router.push("/");
+  };
+
+  // Redirect if not connected
+  useEffect(() => {
+    if (!isConnected && !address) {
+      router.push("/");
+    }
+  }, [isConnected, address, router]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -27,15 +64,16 @@ const Profile = () => {
           <div className="bg-primary/10 p-8">
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
               <Avatar className="h-24 w-24  border-2 border-sky-400">
-                {/* <AvatarImage src={user?.avatarUrl || ""} /> */}
                 <AvatarImage src={AvatarImg.src} className="rounded-full" />
                 <AvatarFallback className="bg-primary text-primary-foreground text-xl">
-                  {user?.email?.charAt(0).toUpperCase() || "AK"}
+                  {userData?.email?.charAt(0).toUpperCase() || "AK"}
                 </AvatarFallback>
               </Avatar>
 
               <div className="flex flex-col items-center sm:items-start">
-                <h1 className="text-2xl font-bold">{user?.email || "User"}</h1>
+                <h1 className="text-2xl font-bold">
+                  {userData?.email || "User"}
+                </h1>
                 <div className="flex items-center gap-2 mt-1">
                   <Badge variant="outline" className="font-medium">
                     {getUserRole()}
@@ -59,7 +97,7 @@ const Profile = () => {
                   <h3 className="text-sm font-medium text-muted-foreground mb-1">
                     Email
                   </h3>
-                  <p>{user?.email || "Not provided"}</p>
+                  <p>{userData?.email || "Not provided"}</p>
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-muted-foreground mb-1">
@@ -93,7 +131,7 @@ const Profile = () => {
                     <Button
                       onClick={linkWallet}
                       variant="outline"
-                    className="mt-2"
+                      className="mt-2"
                     >
                       Connect Another Wallet
                     </Button>
@@ -117,6 +155,13 @@ const Profile = () => {
           </div>
         </div>
       </main>
+
+      {/* Wallet Connection Modal */}
+      <CustomWalletModal
+        isOpen={showWalletModal}
+        onClose={() => setShowWalletModal(false)}
+        onComplete={() => setShowWalletModal(false)}
+      />
     </div>
   );
 };

@@ -135,6 +135,10 @@ export interface CourseEnrollment {
 export interface User {
   email: string;
   // avatarUrl: string;
+  // customFields: {
+  //   role?: string;
+  //   [key: string]: any;
+  // };
 }
 
 export interface CommunityEvent {
@@ -168,4 +172,4 @@ export interface Community {
   members: number;
   // icon: ReactNode;
   icon: LucideIcon;
-};
+}
